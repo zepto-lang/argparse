@@ -1,0 +1,9 @@
+(define (in-args? x)
+  (in? (lambda (y) (string=? x y)) args))
+
+(define (arg-value? x)
+  (let ((args-vec (list->vector args))
+        (i (+ (list-index args x) 1)))
+    (if (or (>= i (vector-length args-vec)) (= i 0))
+      #f
+      (vector-ref args-vec i))))
