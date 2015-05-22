@@ -10,14 +10,14 @@
 
 (define (arg-list-parse l) 
   "return specified arguments as list; 
-    e.g. input:  '('(\":foo\" :number) '(\"bar\" string))
+    e.g. input:  '('(\":foo\" :number) '(\"bar\" :string))
          output: '('(\"foo\" 10) '(\"bar\" \"test\"))"
   (let ((handle (lambda (el)
             (let ((type (cadadr el))
                   (value (arg-value? (caadr el)))
                   (make (curry list (caadr el))))
               (if (nil? value)
-                  (in? (caadr el))
+                  (make (in-args? (caadr el)))
                   (cond ((eq? type :number) (make (string->number value)))
                         ((eq? type :string) (make value))
                         ((eq? type :list) (make (string->list value)))
@@ -25,6 +25,6 @@
                         (else (make (nil)))))))))
   [(handle x) | x <- l]))
 
-;(define x (arg-list-parse '('("lol" :number) '("rol" :string))))
+;(define x (arg-list-parse '('("foo" :number) '("bar" :string))))
 ;(write (typeof (cadar x)))
 ;(write (typeof (cadadr x)))
