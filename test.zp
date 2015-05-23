@@ -1,0 +1,4 @@
+(define x (argparse:arg-list-parse '('("foo" :number) '("bar" :string))))
+(write x)
+(write (typeof (cadar x)))
+(write (typeof (cadadr x)))
