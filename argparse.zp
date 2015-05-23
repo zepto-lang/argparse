@@ -1,14 +1,14 @@
-(define (in-args? x) "checks whether x is in args"
+(define (argparse:in-args? x) "checks whether x is in args"
   (in? (lambda (y) (string=? x y)) args))
 
-(define (arg-value? x) "return value of x; otherwise returns nil"
+(define (argparse:arg-value? x) "return value of x; otherwise returns nil"
   (let ((args-vec (list->vector args))
         (i (+ (list-index args x) 1)))
     (if (or (>= i (vector-length args-vec)) (= i 0))
       (nil)
       (vector-ref args-vec i))))
 
-(define (arg-list-parse l) 
+(define (argparse:arg-list-parse l) 
   "return specified arguments as list; 
     e.g. input:  '('(\":foo\" :number) '(\"bar\" :string))
          output: '('(\"foo\" 10) '(\"bar\" \"test\"))"
@@ -22,9 +22,15 @@
                         ((eq? type :string) (make value))
                         ((eq? type :list) (make (string->list value)))
                         ((eq? type :symbol) (make (string->symbol value)))
+                        ((eq? type :boolean) (make (string->boolean value)))
+                        ((eq? type :integer) (make (string->integer value)))
+                        ((eq? type :small) (make-small (small (string->integer value))))
+                        ((eq? type :float) (make (string->float value)))
+                        ((eq? type :rational) (make (string->rational value)))
+                        ((eq? type :complex) (make (string->complex value)))
                         (else (make (nil)))))))))
   [(handle x) | x <- l]))
 
-;(define x (arg-list-parse '('("foo" :number) '("bar" :string))))
+;(define x (argparse:arg-list-parse '('("foo" :number) '("bar" :string))))
 ;(write (typeof (cadar x)))
 ;(write (typeof (cadadr x)))
