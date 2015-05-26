@@ -1,9 +1,13 @@
 (define (argparse:in-args? x) "checks whether x is in args"
-  (in? (lambda (y) (string=? x y)) args))
+  (let* ((arg-prefix "--")
+         (search (+= arg-prefix x)))
+    (in? (lambda (y) (string=? search y)) args)))
 
 (define (argparse:arg-value? x) "return value of x; otherwise returns nil"
-  (let ((args-vec (list->vector args))
-        (i (+ (list-index args x) 1)))
+  (let* ((args-vec (list->vector args))
+         (arg-prefix "--")
+         (search (+= arg-prefix x))
+         (i (+ (list-index args search) 1)))
     (if (or (>= i (vector-length args-vec)) (= i 0))
       (nil)
       (vector-ref args-vec i))))
@@ -15,9 +19,10 @@
   (let ((handle (lambda (el)
             (let ((type (cadadr el))
                   (value (argparse:arg-value? (caadr el)))
-                  (make (curry list (caadr el))))
+                  (make (curry list (caadr el)))
+                  (wrap-error (lambda (x) (if x x :no))))
               (if (nil? value)
-                  (make (argparse:in-args? (caadr el)))
+                  (make (wrap-error (argparse:in-args? (caadr el))))
                   (cond ((eq? type :number) (make (string->number value)))
                         ((eq? type :string) (make value))
                         ((eq? type :list) (make (string->list value)))
@@ -28,6 +33,6 @@
                         ((eq? type :float) (make (string->float value)))
                         ((eq? type :rational) (make (string->rational value)))
                         ((eq? type :complex) (make (string->complex value)))
-                        (else (make (nil)))))))))
+                        (else (make :error))))))))
   [(handle x) | x <- l]))
 
