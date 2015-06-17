@@ -1,7 +1,7 @@
 (load "argparse.zp")
 
 ;(define x (argparse:arg-list-parse '('("foo" :number 10) '("bar" :string "placeholder"))))
-(define x (argparse:arg-list-parse '(("foo" :number) ("bar" :string))))
+(define x (argparse:arg-list-parse '(("foo" :number 10) ("bar" :string))))
 (write x)
 (write (typeof (cadar x)))
 (write (typeof (cadadr x)))
