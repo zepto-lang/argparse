@@ -39,7 +39,7 @@
          output: '((\"foo\" 10) (\"bar\" \"test\"))"
   (let ((handle (lambda (el)
             (let* ((dflt (lambda (x)
-                    (if (nil? (x "default"))
+                    (if (hash-contains? x "default"))
                       :wrong
                       (x "default"))))
                    (default (dflt el))
