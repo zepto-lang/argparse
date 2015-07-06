@@ -39,15 +39,15 @@
          output: '((\"foo\" 10) (\"bar\" \"test\"))"
   (let ((handle (lambda (el)
             (let* ((dflt (lambda (x)
-                    (if (hash-contains? x "default"))
-                      :wrong
-                      (x "default"))))
+                    (if (hash-contains? x "default")
+                      (x "default")
+                      :wrong)))
                    (default (dflt el))
                    (type (el "type"))
                    (name (el "name"))
                    (value (argparse:arg-value? name))
                    (make (curry list name))
-                   (wrap-wrong (lambda (x d) (if x d x)))
+                   (wrap-wrong (lambda (x d) (if x :wrong d)))
                    (string->small (lambda (x)
                                     (if (boolean? (string->integer x)
                                       x
