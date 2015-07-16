@@ -29,8 +29,8 @@ representing the arguments (with "name", "type" and, optionally,
 and their respective values. The remaining arguments are ignored.
 
 If the arguments are misformatted, the library will print usage
-information and return nil.
+information and return `nil`.
 
-<hr style="background-color: white"/>
+<hr/>
 
 *Have fun!*

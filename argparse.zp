@@ -52,10 +52,7 @@
                                     (if (boolean? (string->integer x)
                                       x
                                       (make-small (string->integer x))))))
-                   (wrong (lambda (x)
-                              (if (boolean? x)
-                                    :wrong
-                                    x))))
+                   (wrong (lambda (x) (if (boolean? x) :wrong x))))
               (cond ((no? value)
                       (if (eq? type :boolean)
                         (make (argparse:in-args? name))
