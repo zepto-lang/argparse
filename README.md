@@ -31,6 +31,6 @@ and their respective values. The remaining arguments are ignored.
 If the arguments are misformatted, the library will print usage
 information and return nil.
 
-<hr style="color: white"/>
+<hr style="background-color: white"/>
 
 *Have fun!*
