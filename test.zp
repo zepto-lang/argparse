@@ -5,6 +5,7 @@
                                ["type" :number]
                                ["default" 10]
                                ["usage" "foo you"])
+
                     (make-hash ["name" "bar"]
                                ["type" :string]
                                ["usage" "bar me"]))))

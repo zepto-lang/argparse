@@ -12,13 +12,14 @@ It looks like this:
 
 ```clojure
 (argparse:handle-args "test" 
-        (list (make-hash ["name" "foo"] 
-                         ["type" :number]
-                         ["default" 10]
-                         ["usage" "foo you"])
-              (make-hash ["name" "bar"]
-                         ["type" :string]
-                         ["usage" "bar me"])))
+    (list (make-hash ["name"    "foo"] 
+                     ["type"    :number]
+                     ["default" 10]
+                     ["usage"   "foo you"])
+
+          (make-hash ["name"    "bar"]
+                     ["type"    :string]
+                     ["usage"   "bar me"])))
 ```
 
 It uses the module's most important entry-point, `handle-args`.
@@ -29,5 +30,7 @@ and their respective values. The remaining arguments are ignored.
 
 If the arguments are misformatted, the library will print usage
 information and return nil.
+
+<hr/>
 
 *Have fun!*
