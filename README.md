@@ -1,18 +1,18 @@
 # argparse
 
-A minimal argument parser for CLI applications in zepto.
-It is mostly thought of as a proof of concept, but it does
-indeed work pretty well. If the API appeals to you aesthetically,
-feel free to use it as you like.
+A minimal argument parser for CLI applications in zepto in just
+over 80 lines. It is mostly thought of as a proof of concept, but
+it does indeed work pretty well. If the API appeals to you
+aesthetically, feel free to use it as you like.
 
 ##Usage
 
-There is a file named `test.zp` that uses the module. 
+There is a file named `test.zp` that uses the module.
 It looks like this:
 
 ```clojure
-(argparse:handle-args "test" 
-    (list (make-hash ["name"    "foo"] 
+(argparse:handle-args "test"
+    (list (make-hash ["name"    "foo"]
                      ["type"    :number]
                      ["default" 10]
                      ["usage"   "foo you"])
@@ -31,6 +31,6 @@ and their respective values. The remaining arguments are ignored.
 If the arguments are misformatted, the library will print usage
 information and return nil.
 
-<hr/>
+<hr style="color: white"/>
 
 *Have fun!*
