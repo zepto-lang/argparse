@@ -9,7 +9,7 @@
                     (make-hash ["name" "bar"]
                                ["type" :string]
                                ["usage" "bar me"]))))
-(if (eq? (typeof x) "hashmap")
+(if (hash-map? x)
   (begin
     (write `("foo is: " ,(x "foo")))
     (write `("bar is: " ,(x "bar")))))
