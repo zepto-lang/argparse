@@ -19,14 +19,20 @@ It looks like this:
 
           (make-hash ["name"    "bar"]
                      ["type"    :string]
-                     ["usage"   "bar me"])))
+                     ["usage"   "bar me"])
+          (make-hash ["name" "bool"]
+                     ["short" "b"]
+                     ["type" :boolean]
+                     ["usage" "some boolean"])))
 ```
 
 It uses the module's most important entry-point, `handle-args`.
 The function takes the program's name plus a list of hashmaps
 representing the arguments (with "name", "type" and, optionally,
-"usage" and "type") and returns a hashmap containing the arguments
-and their respective values. The remaining arguments are ignored.
+"usage") and returns a hashmap containing the arguments
+and their respective values. "short" is a special for boolean flags
+to allow arguments as "-b", for example. Grouping of those (e.g. "-xbd")
+is also allowed. The remaining arguments are ignored.
 
 If the arguments are misformatted, the library will print usage
 information and return `nil`.

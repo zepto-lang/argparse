@@ -1,3 +1,14 @@
+(define (argparse:in-booleans? x) "checks whether x is in boolean args"
+  (let* ((arg-prefix "-"))
+    (begin
+      (define all
+        (string-join 
+          (filter (lambda (y) (and
+                                (string=? arg-prefix (substring y 0 1))
+                                (not (string=? arg-prefix (substring y 1 2)))))
+                   args)))
+      (in? (lambda (el) (string=? (string el) x)) (string->list all)))))
+
 (define (argparse:in-args? x) "checks whether x is in args"
   (let* ((arg-prefix "--")
          (search (++ arg-prefix x)))
@@ -45,6 +56,7 @@
                    (default (dflt el))
                    (type (el "type"))
                    (name (el "name"))
+                   (short (el "short"))
                    (value (argparse:arg-value? name))
                    (make (curry list name))
                    (wrap-wrong (lambda (x d) (if x :wrong d)))
@@ -55,7 +67,10 @@
                    (wrong (lambda (x) (if (boolean? x) :wrong x))))
               (cond ((no? value)
                       (if (eq? type :boolean)
-                        (make (argparse:in-args? name))
+                        (make (or (argparse:in-args? name) 
+                                  (if (nil? short)
+                                    #f
+                                    (argparse:in-booleans? short))))
                         (make (wrap-wrong (argparse:in-args? name) default))))
                     ((wrong? value) (make value))
                     (else (cond ((eq? type :number) (make (wrong (string->number value))))

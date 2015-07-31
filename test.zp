@@ -8,8 +8,13 @@
 
                     (make-hash ["name" "bar"]
                                ["type" :string]
-                               ["usage" "bar me"]))))
+                               ["usage" "bar me"])
+                    (make-hash ["name" "bool"]
+                               ["short" "b"]
+                               ["type" :boolean]
+                               ["usage" "some boolean"]))))
 (if (hash-map? x)
   (begin
     (write `("foo is: " ,(x "foo")))
-    (write `("bar is: " ,(x "bar")))))
+    (write `("bar is: " ,(x "bar")))
+    (write `("bool is: " ,(x "bool")))))
