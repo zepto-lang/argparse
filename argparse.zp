@@ -40,14 +40,21 @@
                 (display "\t")
                 (display (x "name"))
                 (display ":\t")
-                (write (x "usage"))))
+                (display (x "usage"))
+                (if (hash-contains? x "required")
+                  (if (x "required")
+                    (write " [required argument]") 
+                    (write ""))
+                  (if (or (eqv? (x "type") :boolean) (hash-contains? x "default"))
+                    (write "")
+                    (write " [required argument]")))))
             l)
       (nil))))
 
 (define (argparse:arg-list-parse l) 
-  "return specified arguments as list; 
-    e.g. input:  '('(\":foo\" :number) '(\"bar\" :string))
-         output: '((\"foo\" 10) (\"bar\" \"test\"))"
+  "return specified arguments as hash-map; 
+    e.g. input:  (make-hash '(\":foo\" :number) '(\"bar\" :string))
+         output: #{\"foo\" 10 \"bar\" \"test\"}"
   (let ((handle (lambda (el)
             (let* ((dflt (lambda (x)
                     (if (hash-contains? x "default")
@@ -57,9 +64,16 @@
                    (type (el "type"))
                    (name (el "name"))
                    (short (el "short"))
+                   (options (el "options"))
+                   (required (let ((req (el "required"))) (if (nil? req) #t req)))
                    (value (argparse:arg-value? name))
+                   (value-correct (if (not (nil? options)) (in options value) #t))
+                   (write-not-in-opts (lambda () (begin
+                      (display (++ "error: argument \"" name "\" must be one of "))
+                      (write options)
+                      (write ""))))
                    (make (curry list name))
-                   (wrap-wrong (lambda (x d) (if x :wrong d)))
+                   (wrap-wrong (lambda (x) (if x :wrong default)))
                    (string->small (lambda (x)
                                     (if (boolean? (string->integer x)
                                       x
@@ -71,8 +85,14 @@
                                   (if (nil? short)
                                     #f
                                     (argparse:in-booleans? short))))
-                        (make (wrap-wrong (argparse:in-args? name) default))))
+                        (if required
+                          (make (wrap-wrong (argparse:in-args? name)))
+                          (make #f))))
                     ((wrong? value) (make value))
+                    ((not value-correct)
+                      (begin
+                        (write-not-in-opts)
+                        (make :wrong)))
                     (else (cond ((eq? type :number) (make (wrong (string->number value))))
                                 ((eq? type :string) (make value))
                                 ((eq? type :list) (make (string->list value)))

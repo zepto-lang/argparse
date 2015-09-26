@@ -5,10 +5,15 @@
                                ["type" :number]
                                ["default" 10]
                                ["usage" "foo you"])
-
                     (make-hash ["name" "bar"]
                                ["type" :string]
+                               ["required" #f]
                                ["usage" "bar me"])
+                    (make-hash ["name" "someotherthing"]
+                               ["short" "s"]
+                               ["type" :string]
+                               ["options" ("this" "that")]
+                               ["usage" "some bollocks"])
                     (make-hash ["name" "bool"]
                                ["short" "b"]
                                ["type" :boolean]
@@ -17,4 +22,5 @@
   (begin
     (write `("foo is: " ,(x "foo")))
     (write `("bar is: " ,(x "bar")))
+    (write `("someotherthing is: " ,(x "someotherthing")))
     (write `("bool is: " ,(x "bool")))))
