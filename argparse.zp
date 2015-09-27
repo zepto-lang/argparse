@@ -29,17 +29,32 @@
           :wrong
           found)))))
 
-(define (argparse:print-usage name l)
-  (let ((names (reduce (lambda (acc x) (++ acc (x "name") "|")) "" l)))
+(define (argparse:print-usage name desc l)
+  (let ((names (reduce (lambda (acc x) (++ acc (x "name") "|")) "" l))
+        (make-cap-alnum (lambda (x) 
+          (string-upper-case (list->string
+            (filter char-alphanum? (string->list (symbol->string x))))))))
     (begin 
       (display (++ "usage: " name " ["))
       (display (substring names 0 (- (string-length names) 1)))
-      (write "]")
+      (display "]\n\n  ")
+      (write desc)
+      (write "\nArguments:")
       (map (lambda (x) 
               (begin
                 (display "\t")
+                (if (hash-contains? x "short")
+                  (begin
+                    (display "-")
+                    (display (x "short"))
+                    (display ", ")))
+                (display "--")
                 (display (x "name"))
-                (display ":\t")
+                (if (not (eqv? (x "type") :boolean))
+                  (begin
+                    (display " ")
+                    (display (make-cap-alnum (x "type")))))
+                (display "\t")
                 (display (x "usage"))
                 (if (hash-contains? x "required")
                   (if (x "required")
@@ -69,8 +84,9 @@
                    (value (argparse:arg-value? name))
                    (value-correct (if (not (nil? options)) (in options value) #t))
                    (write-not-in-opts (lambda () (begin
-                      (display (++ "error: argument \"" name "\" must be one of "))
-                      (write options)
+                      (display (++ "error: argument \"" name "\" must be one of the following: "))
+                      (display (string-join options ", "))
+                      (write ".")
                       (write ""))))
                    (make (curry list name))
                    (wrap-wrong (lambda (x) (if x :wrong default)))
@@ -106,8 +122,8 @@
                                 (else (make :error)))))))))
   (make-hash [(handle x) | x <- l])))
 
-(define (argparse:handle-args name l)
+(define (argparse:handle-args name desc l)
   (let ((x (argparse:arg-list-parse l)))
     (if (>= (list-index (hash-values x) :wrong) 0)
-      (argparse:print-usage name l)
+      (argparse:print-usage name desc l)
       x)))

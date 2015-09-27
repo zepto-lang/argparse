@@ -1,6 +1,7 @@
 (load "argparse.zp")
 
 (define x (argparse:handle-args "test" 
+              "this program kills zombies"
               (list (make-hash ["name" "foo"] 
                                ["type" :number]
                                ["default" 10]
