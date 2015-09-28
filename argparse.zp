@@ -6,22 +6,22 @@
           (filter (lambda (y) (and
                                 (string=? arg-prefix (substring y 0 1))
                                 (not (string=? arg-prefix (substring y 1 2)))))
-                   args)))
+                   zepto:args)))
       (in? (lambda (el) (string=? (string el) x)) (string->list all)))))
 
 (define (argparse:in-args? x) "checks whether x is in args"
   (let* ((arg-prefix "--")
          (search (++ arg-prefix x)))
-    (in? (lambda (y) (string=? search y)) args)))
+    (in? (lambda (y) (string=? search y)) zepto:args)))
 
 (define (argparse:arg-value? x) "return value of x; otherwise returns nil"
-  (let* ((args-vec (list->vector args))
+  (let* ((args-vec (list->vector zepto:args))
          (arg-prefix "--")
          (search (++ arg-prefix x))
          (string-prefix (lambda (prefix el) 
                           (let ((len (string-length prefix)))
                             (eq? prefix (substring el 0 len)))))
-         (i (+ (list-index args search) 1)))
+         (i (+ (list-index zepto:args search) 1)))
     (if (or (>= i (vector-length args-vec)) (= i 0))
       :no
       (let ((found (vector-ref args-vec i)))
@@ -29,13 +29,13 @@
           :wrong
           found)))))
 
-(define (argparse:print-usage name desc l)
+(define (argparse:print-usage desc l)
   (let ((names (reduce (lambda (acc x) (++ acc (x "name") "|")) "" l))
         (make-cap-alnum (lambda (x) 
           (string-upper-case (list->string
             (filter char-alphanum? (string->list (symbol->string x))))))))
     (begin 
-      (display (++ "usage: " name " ["))
+      (display (++ "usage: " zepto:name " ["))
       (display (substring names 0 (- (string-length names) 1)))
       (display "]\n\n  ")
       (write desc)
@@ -122,8 +122,8 @@
                                 (else (make :error)))))))))
   (make-hash [(handle x) | x <- l])))
 
-(define (argparse:handle-args name desc l)
+(define (argparse:handle-args desc l)
   (let ((x (argparse:arg-list-parse l)))
     (if (>= (list-index (hash-values x) :wrong) 0)
-      (argparse:print-usage name desc l)
+      (argparse:print-usage desc l)
       x)))

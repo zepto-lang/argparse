@@ -12,7 +12,7 @@ running example.
 Usage could look like this:
 
 ```clojure
-(argparse:handle-args "test"
+(argparse:handle-args
     "this program kills zombies"
     (list (make-hash ["name"    "foo"]
                      ["type"    :number]
@@ -30,7 +30,7 @@ Usage could look like this:
 ```
 
 It uses the module's most important entry-point, `handle-args`.
-The function takes the program's name plus a list of hashmaps
+The function takes the program's description plus a list of hashmaps
 representing the arguments (with "name", "type" and, optionally,
 "usage") and returns a hashmap containing the arguments
 and their respective values. "short" is a special for boolean flags
