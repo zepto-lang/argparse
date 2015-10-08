@@ -2,7 +2,7 @@
   (let* ((arg-prefix "-"))
     (begin
       (define all
-        (string-join 
+        (string:join 
           (filter (lambda (y) (and
                                 (string=? arg-prefix (substring y 0 1))
                                 (not (string=? arg-prefix (substring y 1 2)))))
@@ -19,12 +19,12 @@
          (arg-prefix "--")
          (search (++ arg-prefix x))
          (string-prefix (lambda (prefix el) 
-                          (let ((len (string-length prefix)))
+                          (let ((len (string:length prefix)))
                             (eq? prefix (substring el 0 len)))))
-         (i (+ (list-index zepto:args search) 1)))
-    (if (or (>= i (vector-length args-vec)) (= i 0))
+         (i (+ (list:index zepto:args search) 1)))
+    (if (or (>= i (vector:length args-vec)) (= i 0))
       :no
-      (let ((found (vector-ref args-vec i)))
+      (let ((found (vector:ref args-vec i)))
         (if (string-prefix arg-prefix found)
           :wrong
           found)))))
@@ -32,18 +32,18 @@
 (define (argparse:print-usage desc l)
   (let ((names (reduce (lambda (acc x) (++ acc (x "name") "|")) "" l))
         (make-cap-alnum (lambda (x) 
-          (string-upper-case (list->string
-            (filter char-alphanum? (string->list (symbol->string x))))))))
+          (string:upper-case (list->string
+            (filter char:alphanum? (string->list (symbol->string x))))))))
     (begin 
       (display (++ "usage: " zepto:name " ["))
-      (display (substring names 0 (- (string-length names) 1)))
+      (display (substring names 0 (- (string:length names) 1)))
       (display "]\n\n  ")
       (write desc)
       (write "\nArguments:")
       (map (lambda (x) 
               (begin
                 (display "\t")
-                (if (hash-contains? x "short")
+                (if (hash:contains? x "short")
                   (begin
                     (display "-")
                     (display (x "short"))
@@ -56,11 +56,11 @@
                     (display (make-cap-alnum (x "type")))))
                 (display "\t")
                 (display (x "usage"))
-                (if (hash-contains? x "required")
+                (if (hash:contains? x "required")
                   (if (x "required")
                     (write " [required argument]") 
                     (write ""))
-                  (if (or (eqv? (x "type") :boolean) (hash-contains? x "default"))
+                  (if (or (eqv? (x "type") :boolean) (hash:contains? x "default"))
                     (write "")
                     (write " [required argument]")))))
             l)
@@ -72,7 +72,7 @@
          output: #{\"foo\" 10 \"bar\" \"test\"}"
   (let ((handle (lambda (el)
             (let* ((dflt (lambda (x)
-                    (if (hash-contains? x "default")
+                    (if (hash:contains? x "default")
                       (x "default")
                       :wrong)))
                    (default (dflt el))
@@ -85,7 +85,7 @@
                    (value-correct (if (not (nil? options)) (in options value) #t))
                    (write-not-in-opts (lambda () (begin
                       (display (++ "error: argument \"" name "\" must be one of the following: "))
-                      (display (string-join options ", "))
+                      (display (string:join options ", "))
                       (write ".")
                       (write ""))))
                    (make (curry list name))
@@ -124,6 +124,6 @@
 
 (define (argparse:handle-args desc l)
   (let ((x (argparse:arg-list-parse l)))
-    (if (>= (list-index (hash-values x) :wrong) 0)
+    (if (>= (list:index (hash:values x) :wrong) 0)
       (argparse:print-usage desc l)
       x)))
