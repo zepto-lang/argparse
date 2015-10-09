@@ -1,129 +1,133 @@
-(define (argparse:in-booleans? x) "checks whether x is in boolean args"
-  (let* ((arg-prefix "-"))
-    (begin
-      (define all
-        (string:join 
-          (filter (lambda (y) (and
-                                (string=? arg-prefix (substring y 0 1))
-                                (not (string=? arg-prefix (substring y 1 2)))))
-                   zepto:args)))
-      (in? (lambda (el) (string=? (string el) x)) (string->list all)))))
+(module "argparse"
 
-(define (argparse:in-args? x) "checks whether x is in args"
-  (let* ((arg-prefix "--")
-         (search (++ arg-prefix x)))
-    (in? (lambda (y) (string=? search y)) zepto:args)))
+  (export (list "handle-args" handle-args))
 
-(define (argparse:arg-value? x) "return value of x; otherwise returns nil"
-  (let* ((args-vec (list->vector zepto:args))
-         (arg-prefix "--")
-         (search (++ arg-prefix x))
-         (string-prefix (lambda (prefix el) 
-                          (let ((len (string:length prefix)))
-                            (eq? prefix (substring el 0 len)))))
-         (i (+ (list:index zepto:args search) 1)))
-    (if (or (>= i (vector:length args-vec)) (= i 0))
-      :no
-      (let ((found (vector:ref args-vec i)))
-        (if (string-prefix arg-prefix found)
-          :wrong
-          found)))))
+  (in-booleans? (lambda (x) "checks whether x is in booleans"
+    (let* ((arg-prefix "-"))
+      (begin
+        (define all
+          (string:join 
+            (filter (lambda (y) (and
+                                  (string=? arg-prefix (substring y 0 1))
+                                  (not (string=? arg-prefix (substring y 1 2)))))
+                     zepto:args)))
+        (in? (lambda (el) (string=? (string el) x)) (string->list all))))))
 
-(define (argparse:print-usage desc l)
-  (let ((names (reduce (lambda (acc x) (++ acc (x "name") "|")) "" l))
-        (make-cap-alnum (lambda (x) 
-          (string:upper-case (list->string
-            (filter char:alphanum? (string->list (symbol->string x))))))))
-    (begin 
-      (display (++ "usage: " zepto:name " ["))
-      (display (substring names 0 (- (string:length names) 1)))
-      (display "]\n\n  ")
-      (write desc)
-      (write "\nArguments:")
-      (map (lambda (x) 
-              (begin
-                (display "\t")
-                (if (hash:contains? x "short")
-                  (begin
-                    (display "-")
-                    (display (x "short"))
-                    (display ", ")))
-                (display "--")
-                (display (x "name"))
-                (if (not (eqv? (x "type") :boolean))
-                  (begin
-                    (display " ")
-                    (display (make-cap-alnum (x "type")))))
-                (display "\t")
-                (display (x "usage"))
-                (if (hash:contains? x "required")
-                  (if (x "required")
-                    (write " [required argument]") 
-                    (write ""))
-                  (if (or (eqv? (x "type") :boolean) (hash:contains? x "default"))
-                    (write "")
-                    (write " [required argument]")))))
-            l)
-      (nil))))
+  (in-args? (lambda (x) "checks whether x is in args"
+    (let* ((arg-prefix "--")
+           (search (++ arg-prefix x)))
+      (in? (lambda (y) (string=? search y)) zepto:args))))
 
-(define (argparse:arg-list-parse l) 
-  "return specified arguments as hash-map; 
-    e.g. input:  (make-hash '(\":foo\" :number) '(\"bar\" :string))
-         output: #{\"foo\" 10 \"bar\" \"test\"}"
-  (let ((handle (lambda (el)
-            (let* ((dflt (lambda (x)
-                    (if (hash:contains? x "default")
-                      (x "default")
-                      :wrong)))
-                   (default (dflt el))
-                   (type (el "type"))
-                   (name (el "name"))
-                   (short (el "short"))
-                   (options (el "options"))
-                   (required (let ((req (el "required"))) (if (nil? req) #t req)))
-                   (value (argparse:arg-value? name))
-                   (value-correct (if (not (nil? options)) (in options value) #t))
-                   (write-not-in-opts (lambda () (begin
-                      (display (++ "error: argument \"" name "\" must be one of the following: "))
-                      (display (string:join options ", "))
-                      (write ".")
-                      (write ""))))
-                   (make (curry list name))
-                   (wrap-wrong (lambda (x) (if x :wrong default)))
-                   (string->small (lambda (x)
-                                    (if (boolean? (string->integer x)
-                                      x
-                                      (make-small (string->integer x))))))
-                   (wrong (lambda (x) (if (boolean? x) :wrong x))))
-              (cond ((no? value)
-                      (if (eq? type :boolean)
-                        (make (or (argparse:in-args? name) 
-                                  (if (nil? short)
-                                    #f
-                                    (argparse:in-booleans? short))))
-                        (if required
-                          (make (wrap-wrong (argparse:in-args? name)))
-                          (make #f))))
-                    ((wrong? value) (make value))
-                    ((not value-correct)
-                      (begin
-                        (write-not-in-opts)
-                        (make :wrong)))
-                    (else (cond ((eq? type :number) (make (wrong (string->number value))))
-                                ((eq? type :string) (make value))
-                                ((eq? type :list) (make (string->list value)))
-                                ((eq? type :vector) (make (list->vector (string->list value))))
-                                ((eq? type :symbol) (make (string->symbol value)))
-                                ((eq? type :integer) (make (wrong (string->integer value))))
-                                ((eq? type :small) (make (wrong (string->small value))))
-                                ((eq? type :float) (make (wrong (string->float value))))
-                                ((eq? type :rational) (make (wrong (string->rational value))))
-                                ((eq? type :complex) (make (wrong (string->complex value))))
-                                (else (make :error)))))))))
-  (make-hash [(handle x) | x <- l])))
+  (arg-value? (lambda (x) "return value of x; otherwise returns nil"
+    (let* ((args-vec (list->vector zepto:args))
+           (arg-prefix "--")
+           (search (++ arg-prefix x))
+           (string-prefix (lambda (prefix el) 
+                            (let ((len (string:length prefix)))
+                              (eq? prefix (substring el 0 len)))))
+           (i (+ (list:index zepto:args search) 1)))
+      (if (or (>= i (vector:length args-vec)) (= i 0))
+        :no
+        (let ((found (vector:ref args-vec i)))
+          (if (string-prefix arg-prefix found)
+            :wrong
+            found))))))
 
-(define (argparse:handle-args desc l)
-  (let ((x (argparse:arg-list-parse l)))
-    (if (>= (list:index (hash:values x) :wrong) 0)
-      (argparse:print-usage desc l)
-      x)))
+  (print-usage (lambda (desc l)
+    (let ((names (reduce (lambda (acc x) (++ acc (x "name") "|")) "" l))
+          (make-cap-alnum (lambda (x) 
+            (string:upper-case (list->string
+              (filter char:alphanum? (string->list (symbol->string x))))))))
+      (begin 
+        (display (++ "usage: " zepto:name " ["))
+        (display (substring names 0 (- (string:length names) 1)))
+        (display "]\n\n  ")
+        (write desc)
+        (write "\nArguments:")
+        (map (lambda (x) 
+                (begin
+                  (display "\t")
+                  (if (hash:contains? x "short")
+                    (begin
+                      (display "-")
+                      (display (x "short"))
+                      (display ", ")))
+                  (display "--")
+                  (display (x "name"))
+                  (if (not (eqv? (x "type") :boolean))
+                    (begin
+                      (display " ")
+                      (display (make-cap-alnum (x "type")))))
+                  (display "\t")
+                  (display (x "usage"))
+                  (if (hash:contains? x "required")
+                    (if (x "required")
+                      (write " [required argument]") 
+                      (write ""))
+                    (if (or (eqv? (x "type") :boolean) (hash:contains? x "default"))
+                      (write "")
+                      (write " [required argument]")))))
+              l)
+        (nil)))))
+
+  (arg-list-parse (lambda (l) 
+    "return specified arguments as hash-map; 
+      e.g. input:  (make-hash '(\":foo\" :number) '(\"bar\" :string))
+           output: #{\"foo\" 10 \"bar\" \"test\"}"
+    (let ((handle (lambda (el)
+              (let* ((dflt (lambda (x)
+                      (if (hash:contains? x "default")
+                        (x "default")
+                        :wrong)))
+                     (default (dflt el))
+                     (type (el "type"))
+                     (name (el "name"))
+                     (short (el "short"))
+                     (options (el "options"))
+                     (required (let ((req (el "required"))) (if (nil? req) #t req)))
+                     (value (arg-value? name))
+                     (value-correct (if (not (nil? options)) (in options value) #t))
+                     (write-not-in-opts (lambda () (begin
+                        (display (++ "error: argument \"" name "\" must be one of the following: "))
+                        (display (string:join options ", "))
+                        (write ".")
+                        (write ""))))
+                     (make (curry list name))
+                     (wrap-wrong (lambda (x) (if x :wrong default)))
+                     (string->small (lambda (x)
+                                      (if (boolean? (string->integer x)
+                                        x
+                                        (make-small (string->integer x))))))
+                     (wrong (lambda (x) (if (boolean? x) :wrong x))))
+                (cond ((no? value)
+                        (if (eq? type :boolean)
+                          (make (or (in-args? name) 
+                                    (if (nil? short)
+                                      #f
+                                      (in-booleans? short))))
+                          (if required
+                            (make (wrap-wrong (in-args? name)))
+                            (make #f))))
+                      ((wrong? value) (make value))
+                      ((not value-correct)
+                        (begin
+                          (write-not-in-opts)
+                          (make :wrong)))
+                      (else (cond ((eq? type :number) (make (wrong (string->number value))))
+                                  ((eq? type :string) (make value))
+                                  ((eq? type :list) (make (string->list value)))
+                                  ((eq? type :vector) (make (list->vector (string->list value))))
+                                  ((eq? type :symbol) (make (string->symbol value)))
+                                  ((eq? type :integer) (make (wrong (string->integer value))))
+                                  ((eq? type :small) (make (wrong (string->small value))))
+                                  ((eq? type :float) (make (wrong (string->float value))))
+                                  ((eq? type :rational) (make (wrong (string->rational value))))
+                                  ((eq? type :complex) (make (wrong (string->complex value))))
+                                  (else (make :error)))))))))
+    (make-hash [(handle x) | x <- l]))))
+
+  (handle-args (lambda (desc l)
+    (let ((x (arg-list-parse l)))
+      (if (>= (list:index (hash:values x) :wrong) 0)
+        (print-usage desc l)
+        x)))))

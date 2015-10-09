@@ -12,6 +12,7 @@ running example.
 Usage could look like this:
 
 ```clojure
+(define argparse:handle-args (import "argparse:handle-args"))
 (argparse:handle-args
     "this program kills zombies"
     (list (make-hash ["name"    "foo"]
