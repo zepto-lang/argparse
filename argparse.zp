@@ -11,12 +11,12 @@
                                   (string=? arg-prefix (substring y 0 1))
                                   (not (string=? arg-prefix (substring y 1 2)))))
                      zepto:args)))
-        (in? (lambda (el) (string=? (string el) x)) (string->list all))))))
+        (list:matches? (lambda (el) (string=? (string el) x)) (string->list all))))))
 
   (in-args? (lambda (x) "checks whether x is in args"
     (let* ((arg-prefix "--")
            (search (++ arg-prefix x)))
-      (in? (lambda (y) (string=? search y)) zepto:args))))
+      (list:matches? (lambda (y) (string=? search y)) zepto:args))))
 
   (arg-value? (lambda (x) "return value of x; otherwise returns nil"
     (let* ((args-vec (list->vector zepto:args))
