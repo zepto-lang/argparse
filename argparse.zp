@@ -6,7 +6,7 @@
     (let* ((arg-prefix "-"))
       (begin
         (define all
-          (string:join 
+          (string:join
             (filter (lambda (y) (and
                                   (string=? arg-prefix (substring y 0 1))
                                   (not (string=? arg-prefix (substring y 1 2)))))
@@ -38,7 +38,7 @@
           (make-cap-alnum (lambda (x) 
             (string:upper-case (list->string
               (filter char:alphanum? (string->list (symbol->string x))))))))
-      (begin 
+      (begin
         (display (++ "usage: " zepto:name " ["))
         (display (substring names 0 (- (string:length names) 1)))
         (display "]\n\n  ")
@@ -87,7 +87,7 @@
                      (options (el "options"))
                      (required (let ((req (el "required"))) (if (nil? req) #t req)))
                      (value (arg-value? name))
-                     (value-correct (if (not (nil? options)) (in options value) #t))
+                     (value-correct (if (not (nil? options)) (in? options value) #t))
                      (write-not-in-opts (lambda () (begin
                         (display (++ "error: argument \"" name "\" must be one of the following: "))
                         (display (string:join options ", "))
