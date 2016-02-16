@@ -2,8 +2,6 @@
 
   (export (list "handle-args" handle-args))
 
-  (loads '())
-
   (in-booleans? (lambda (x) "checks whether x is in booleans"
     (let* ((arg-prefix "-"))
       (begin
