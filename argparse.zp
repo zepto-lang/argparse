@@ -72,9 +72,7 @@
         (nil)))))
 
   (arg-list-parse (lambda (l) 
-    "return specified arguments as hash-map; 
-      e.g. input:  (make-hash '(\":foo\" :number) '(\"bar\" :string))
-           output: #{\"foo\" 10 \"bar\" \"test\"}"
+    "return specified arguments as hash-map"
     (let ((handle (lambda (el)
               (let* ((dflt (lambda (x)
                       (if (hash:contains? x "default")
@@ -128,6 +126,26 @@
     (make-hash [(handle x) | x <- l]))))
 
   (handle-args (lambda (desc l)
+    "parses a program's arguments according to the specifications described by
+     <par>l</par>. <par>desc</par> is the program description string.
+
+     A few words about <par>l</par>'s format are in order: it is a list of hashmaps
+     of the form:
+     <zepto>
+     #{\"name\" \"arg-name\"
+       \"type\" :arg-type
+       \"default\" arg-dflt-value
+       \"required\" true-or-false
+       \"usage\" \"a string describing the argument\"
+       \"options\" (\"a\" \"list\" \"of\" \"allowed\" \"values\")
+       \"short\" \"a\"}
+      </zepto>
+
+      params:
+        - desc: the program description
+        - l: a list of known cli options
+      complexity: O(n)
+      returns: a hashmap of values or nil if an error occurred"
     (let ((x (arg-list-parse l)))
       (if (>= (list:index (hash:values x) :wrong) 0)
         (print-usage desc l)
