@@ -2,6 +2,8 @@
 
   (export (list "handle-args" handle-args))
 
+  (no? ($ (eq? % :no)))
+
   (in-booleans? (lambda (x) "checks whether x is in booleans"
     (let* ((arg-prefix "-"))
       (begin
